@@ -27,30 +27,6 @@ class Game_Single:
         :return: a tuple (next game state, rewards)
         """
 
-        # if action == 1:
-        #     game.player.draw(game.deck)
-        #     player_sum = game.player.calculate_points()
-        #     if player_sum > 21:
-        #         reward = -1
-        #         game.end = True
-        # else:
-        #     game.end = True
-        #     while dealer_sum < 17:
-        #         game.dealer.draw(game.deck)
-        #         dealer_sum = game.dealer.calculate_points()
-        #     # find a winner
-        #     if dealer_sum > 21:
-        #         if player_sum <= 21:
-        #             reward = 1
-        #     else:
-        #         if player_sum <= 21:
-        #             if player_sum < dealer_sum:
-        #                 reward = -1
-        #             elif player_sum == dealer_sum:
-        #                 reward = 0
-        #             elif player_sum > dealer_sum:
-        #                 reward = 1
-        
         if debug:
             print('Before action, player sum: %d' %player_sum + ' Dealer sum: %d' %dealer_sum)
 
@@ -81,22 +57,14 @@ class Game_Single:
                     break
                 elif diff > 0:
                     # deck is infinite so the probability is uniform
-                    expect = (before_bust - diff) / 52 * 1 - (52 - before_bust) / 52 * 0.5
-                    if expect > 0:
-                        game.dealer.draw(game.deck)
-                        dealer_sum = game.dealer.calculate_points()
-                    else:
-                        reward = 1
-                        if debug:
-                            print('Win due to larger than dealer.' + '\nPlayer hand: ', game.player.hand,'\nDealer hand: ', game.dealer.hand)
-                        break
+                    game.dealer.draw(game.deck)
+                    dealer_sum = game.dealer.calculate_points()
                 else:
                     # use monte carlo sampling to define dealer's action when meeting same sum
-                    rand = random()
-                    if (rand < before_bust / 52):
-                        reward = - 1
-                        if debug:
-                            print('Lose due to smaller than dealer.' + '\nPlayer hand: ', game.player.hand, '\nDealer hand: ', game.dealer.hand)
+                    expect = before_bust / 13 * 1 - (1 - (before_bust / 13)) * 0.5
+                    if (expect > 0):
+                        game.dealer.draw(game.deck)
+                        dealer_sum = game.dealer.calculate_points()
                     else:
                         reward = 0
                         if debug:
