@@ -120,5 +120,5 @@ def Q_Learning(reward, observed_keys, counter_state, counter_state_action, value
 # epsilon = 1: random policy
 # winrecord_QL_random = run_single_game(1, Q_Learning, 'Q_Learning_random', 1, epsilon_greedy)
 # winrecord_QL_epsilon = run_single_game(100000000, Q_Learning, 'Q_Learning_epsilon_greedy', 0.1, epsilon_greedy)
-winrecord_QL_epsilon_GLIE = run_single_game(10000000, Q_Learning, 'Q_Learning_epsilon_greedy_GLIE', -1, epsilon_greedy)
+winrecord_QL_epsilon_GLIE = run_single_game(1000000, Q_Learning, 'Q_Learning_epsilon_greedy_GLIE', -1, epsilon_greedy)
 # winrecord_QL_epsilon = run_single_game(10000000, Q_Learning, 'Q_Learning_complete_exploitation', 0.1, complete_exploitation)
