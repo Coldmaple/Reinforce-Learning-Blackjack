@@ -1,7 +1,6 @@
 from player import Player
 from deck import Deck
 from game_single import Game_Single
-from game_long import Game_Long
 import numpy as np
 import random
 from collections import defaultdict
@@ -104,7 +103,7 @@ def Q_Learning(reward, observed_keys, counter_state, counter_state_action, value
             # update value function
             # alpha: learning rate
             # gamma: discount rate
-            alpha = 1.0 / counter_state_action[observed_keys[i]]
+            alpha = 1.0 / (counter_state_action[observed_keys[i]] + 1)
             gamma = 0.8
             old = value_function[observed_keys[i]]
 
@@ -117,8 +116,20 @@ def Q_Learning(reward, observed_keys, counter_state, counter_state_action, value
                 new = 0
             value_function[observed_keys[i]] = (1 - alpha) * old + alpha * (reward + new)
 
+def MC(reward, observed_keys, counter_state, counter_state_action, value_function):
+    if reward is not None:
+        # update over all keys
+        for key in observed_keys:
+            # update counts
+            counter_state[key[:-1]] += 1
+            counter_state_action[key] += 1
+
+            # update value function
+            alpha = 1.0 / counter_state_action[key]
+            value_function[key] += alpha * (reward - value_function[key])
+
 # epsilon = 1: random policy
 # winrecord_QL_random = run_single_game(1, Q_Learning, 'Q_Learning_random', 1, epsilon_greedy)
 # winrecord_QL_epsilon = run_single_game(100000000, Q_Learning, 'Q_Learning_epsilon_greedy', 0.1, epsilon_greedy)
-winrecord_QL_epsilon_GLIE = run_single_game(1000000, Q_Learning, 'Q_Learning_epsilon_greedy_GLIE', -1, epsilon_greedy)
+winrecord_QL_epsilon_GLIE = run_single_game(100000, Q_Learning, 'Q_Learning_epsilon_greedy_GLIE', -1, epsilon_greedy)
 # winrecord_QL_epsilon = run_single_game(10000000, Q_Learning, 'Q_Learning_complete_exploitation', 0.1, complete_exploitation)

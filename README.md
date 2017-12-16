@@ -1,4 +1,3 @@
 # Reinforce-Learning-Blackjack
-Use reinforce learning to train a blackjack agent
-ok
-Test
+Use reinforcement learning to train a blackjack agent
+
