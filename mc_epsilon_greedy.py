@@ -15,20 +15,7 @@ matplotlib.style.use('ggplot')
 env = BlackjackEnv()
 
 def make_epsilon_greedy_policy(Q, epsilon, nA):
-    """
-    Creates an epsilon-greedy policy based on a given Q-function and epsilon.
-    
-    Args:
-        Q: A dictionary that maps from state -> action-values.
-            Each value is a numpy array of length nA (see below)
-        epsilon: The probability to select a random action . float between 0 and 1.
-        nA: Number of actions in the environment.
-    
-    Returns:
-        A function that takes the observation as an argument and returns
-        the probabilities for each action in the form of a numpy array of length nA.
-    
-    """
+
     def policy_fn(observation):
         A = np.ones(nA, dtype=float) * epsilon / nA
         best_action = np.argmax(Q[observation])
@@ -37,23 +24,7 @@ def make_epsilon_greedy_policy(Q, epsilon, nA):
     return policy_fn
 
 
-def mc_control_epsilon_greedy(env, train_episodes, test_episodes, discount_factor=1.0, epsilon=0.1):
-    """
-    Monte Carlo Control using Epsilon-Greedy policies.
-    Finds an optimal epsilon-greedy policy.
-    
-    Args:
-        env: OpenAI gym environment.
-        train_episodes: Number of episodes to sample.
-        discount_factor: Gamma discount factor.
-        epsilon: Chance the sample a random action. Float betwen 0 and 1.
-    
-    Returns:
-        A tuple (Q, policy).
-        Q is a dictionary mapping state -> action values.
-        policy is a function that takes an observation as an argument and returns
-        action probabilities
-    """
+def train(env, train_episodes, discount_factor=1.0, epsilon=0.1):
     
     # Keeps track of sum and count of returns for each state
     # to calculate an average. We could use an array to save all
@@ -72,11 +43,14 @@ def mc_control_epsilon_greedy(env, train_episodes, test_episodes, discount_facto
     record = []
     episode_array = []
     
+    # Total reward
+    reward_total = 0
+
     # Train
     for i_episode in range(1, train_episodes + 1):
         # Print out which episode we're on, useful for debugging.
         if i_episode % 1000 == 0:
-            print("\rTrain episode {}/{}".format(i_episode, train_episodes), end="")
+            print("\rEpisode {}/{}.".format(i_episode, train_episodes), end="")
             sys.stdout.flush()
 
         # Generate an episode.
@@ -89,6 +63,7 @@ def mc_control_epsilon_greedy(env, train_episodes, test_episodes, discount_facto
             next_state, reward, done, _ = env.step(action)
             episode.append((state, action, reward))
             if done:
+                reward_total += reward
                 break
             state = next_state
 
@@ -106,48 +81,15 @@ def mc_control_epsilon_greedy(env, train_episodes, test_episodes, discount_facto
             returns_sum[sa_pair] += G
             returns_count[sa_pair] += 1.0
             Q[state][action] = returns_sum[sa_pair] / returns_count[sa_pair]
-        
-        # The policy is improved implicitly by changing the Q dictionar
 
-        # Test
-        # wins = 0
-        # if (i_episode % 10 == 0):
+    return reward_total
 
-        #     for j_episode in range(1, test_episodes + 1):
-        #         state = env.reset()
-
-        #         for t in range(100):
-        #             probs = policy(state)
-        #             action = np.random.choice(np.arange(len(probs)), p=probs)
-        #             next_state, reward, done, _ = env.step(action)
-        #             if done:
-        #                 if reward > 0:
-        #                     wins += 1
-        #                     break
-        #                 else: break
-        #             state = next_state
-                
-        #     win_ratio = float(wins) / test_episodes * 100
-        #     record.append(win_ratio)
-        #     episode_array.append(i_episode)
-
-    # print('\nWinning ratio: %.4f%%' % ((float(wins) / test_episodes * 100)))
-
-    # plt.plot(episode_array, record, 'bo')
-    # plt.xticks(range(10, 1000, 10))
-    # plt.yticks(range(0, 100, 10))
-    # plt.xlabel('Episodes')
-    # plt.ylabel('Wining ratio %')
-    # plt.show()
-
-    return Q, policy
-
-Q, policy = mc_control_epsilon_greedy(env, train_episodes=10000, test_episodes=1000, epsilon=0.1)
+# Q, policy = mc_control_epsilon_greedy(env, train_episodes=10000, test_episodes=1000, epsilon=0.1)
 
 # For plot: Create value function from action-value function
 # by picking the best action at each state
-V = defaultdict(float)
-for state, actions in Q.items():
-    action_value = np.max(actions)
-    V[state] = action_value
-plot.plot_value_function(V, title="Optimal Value Function (10000 episodes)")
+# V = defaultdict(float)
+# for state, actions in Q.items():
+#     action_value = np.max(actions)
+#     V[state] = action_value
+# plot.plot_value_function(V, title="Optimal Value Function (10000 episodes)")

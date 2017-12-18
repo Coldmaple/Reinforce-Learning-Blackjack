@@ -21,7 +21,7 @@ def make_epsilon_greedy_policy(Q, epsilon, nA):
         return A
     return policy_fn
 
-def train(env, num_episodes, discount_factor=1.0, alpha=0.5, epsilon=0.1):
+def train(env, num_episodes, discount_factor=1.0, epsilon=0.1):
     
     # The final action-value function.
     # A nested dictionary that maps state -> (action -> action-value).
@@ -31,6 +31,9 @@ def train(env, num_episodes, discount_factor=1.0, alpha=0.5, epsilon=0.1):
     stats = plot.EpisodeStats(
         episode_lengths=np.zeros(num_episodes),
         episode_rewards=np.zeros(num_episodes))
+
+    # (state, action) key
+    counter_state_action = defaultdict(int)
 
     # The policy we're following
     policy = make_epsilon_greedy_policy(Q, epsilon, env.action_space.n)
@@ -65,6 +68,9 @@ def train(env, num_episodes, discount_factor=1.0, alpha=0.5, epsilon=0.1):
             # TD Update
             td_target = reward + discount_factor * Q[next_state][next_action]
             td_delta = td_target - Q[state][action]
+            # Update learning rate
+            counter_state_action[state, action] += 1
+            alpha = 1 / (1 + counter_state_action[state, action])
             Q[state][action] += alpha * td_delta
 
             if done:

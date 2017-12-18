@@ -21,7 +21,7 @@ def make_epsilon_greedy_policy(Q, epsilon, nA):
         return A
     return policy_fn
 
-def train(env, train_episodes, discount_factor=1.0, alpha=0.015, epsilon=0.1):
+def train(env, train_episodes, discount_factor=1.0, alpha=0.5, epsilon=0.1):
     
     # The final action-value function.
     # A nested dictionary that maps state -> (action -> action-value).
@@ -41,7 +41,7 @@ def train(env, train_episodes, discount_factor=1.0, alpha=0.015, epsilon=0.1):
     for i_episode in range(train_episodes):
         # Print out which episode we're on, useful for debugging.
         if (i_episode + 1) % 100 == 0:
-            print("\rEpisode {}/{}.".format(i_episode + 1, train_episodes), end="")
+            print("\rEpisode {}/{}.".format(i_episode, train_episodes), end="")
             sys.stdout.flush()
         
         # Reset the environment and pick the first action
@@ -49,7 +49,7 @@ def train(env, train_episodes, discount_factor=1.0, alpha=0.015, epsilon=0.1):
         
         # One step in the environment
         # total_reward = 0.0
-        for t in range(100):
+        for t in itertools.count():
             # Take a step
             action_probs = policy(state)
             action = np.random.choice(np.arange(len(action_probs)), p=action_probs)
@@ -66,21 +66,23 @@ def train(env, train_episodes, discount_factor=1.0, alpha=0.015, epsilon=0.1):
             Q[state][action] += alpha * td_delta
                 
             if done:
+                # Add reward
+                reward_total += reward
                 break
                 
             state = next_state
 
-    return Q, stats, reward_total
+    return reward_total
 
-Q, stats, reward_total = train(env, train_episodes=1000)
+# Q, stats, reward_total, counter_state_action = train(env, train_episodes=10000)
 
-# # For plot: Create value function from action-value function
-# # by picking the best action at each state
+# For plot: Create value function from action-value function
+# by picking the best action at each state
 # V = defaultdict(float)
 # for state, actions in Q.items():
 #     action_value = np.max(actions)
 #     V[state] = action_value
-# plot.plot_value_function(V, title="Optimal Value Function")
+# plot.plot_value_function(V, title="Optimal Value Function (10000 episodes)")
 
 def test(test_episodes, Q, epsilon=0.1):
     # Test
@@ -105,4 +107,6 @@ def test(test_episodes, Q, epsilon=0.1):
 
     print('\nWinning ratio: %.4f%%' % ((float(wins) / test_episodes * 100)))
 
-test(1000000, Q)
+# test(1000000, Q)
+# plot.plot_episode_stats(stats)
+# print(counter_state_action)
