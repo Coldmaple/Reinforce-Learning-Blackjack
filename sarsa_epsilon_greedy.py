@@ -34,14 +34,11 @@ def train(env, num_episodes, discount_factor=1.0, alpha=0.5, epsilon=0.1):
 
     # The policy we're following
     policy = make_epsilon_greedy_policy(Q, epsilon, env.action_space.n)
-
-    # Total reward
-    reward_total = 0
     
     for i_episode in range(num_episodes):
         # Print out which episode we're on, useful for debugging.
         if (i_episode + 1) % 100 == 0:
-            print("\rEpisode {}/{}.".format(i_episode, num_episodes), end="")
+            print("\rEpisode {}/{}.".format(i_episode + 1, num_episodes), end="")
             sys.stdout.flush()
         
         # Reset the environment and pick the first action
@@ -68,15 +65,36 @@ def train(env, num_episodes, discount_factor=1.0, alpha=0.5, epsilon=0.1):
             Q[state][action] += alpha * td_delta
 
             if done:
-                # Add reward
-                reward_total += reward
                 break
                 
             action = next_action
             state = next_state        
     
+    return Q
+
+# Q = train(env, 10000)
+
+def test(test_episodes, Q, epsilon=0.1):
+    # Test
+
+    # The policy we're following
+    policy = make_epsilon_greedy_policy(Q, epsilon, env.action_space.n)
+
+    reward_total = 0
+    for i_episode in range(1, test_episodes + 1):
+        state = env.reset()
+
+        for t in range(100):
+            probs = policy(state)
+            action = np.random.choice(np.arange(len(probs)), p=probs)
+            next_state, reward, done, _ = env.step(action)
+            if done:
+                reward_total += reward
+                break
+            state = next_state
+
     return reward_total
-# Q, stats, counter_state_action = sarsa(env, 20000)
+
 # For plot: Create value function from action-value function
 # by picking the best action at each state
 # V = defaultdict(float)

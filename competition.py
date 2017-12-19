@@ -13,9 +13,7 @@ import plot
 env = BlackjackEnv()
 
 import q_learning_epsilon_greedy
-import q_learning_epsilon_greedy_GLIE
 import sarsa_epsilon_greedy
-import sarsa_epsilon_greedy_GLIE
 import mc_epsilon_greedy
 
 reward_avg_array1 = []
@@ -29,18 +27,23 @@ episodes_array = []
 
 def compare_three():
 
-    for episodes in range(1000, 5000, 1000):
-        reward_total1 = q_learning_epsilon_greedy.train(env, episodes)
-        reward_total2 = sarsa_epsilon_greedy.train(env, episodes)
-        reward_total3 = mc_epsilon_greedy.train(env, episodes)
+    for episodes in range(10000, 300000, 10000):
+        Q1 = q_learning_epsilon_greedy.train(env, episodes)
+        reward_total1 = q_learning_epsilon_greedy.test(100000, Q1)
 
-        avg_reward1 = reward_total1 / episodes
+        Q2 = sarsa_epsilon_greedy.train(env, episodes)
+        reward_total2 = sarsa_epsilon_greedy.test(100000, Q2)
+
+        Q3 = mc_epsilon_greedy.train(env, episodes)
+        reward_total3 = mc_epsilon_greedy.test(100000, Q3)
+
+        avg_reward1 = reward_total1 / 100000
         reward_avg_array1.append(avg_reward1)
 
-        avg_reward2 = reward_total2 / episodes
+        avg_reward2 = reward_total2 / 100000
         reward_avg_array2.append(avg_reward2)
 
-        avg_reward3 = reward_total3 / episodes
+        avg_reward3 = reward_total3 / 100000
         reward_avg_array3.append(avg_reward3)
         
         episodes_array.append(episodes / 1000)

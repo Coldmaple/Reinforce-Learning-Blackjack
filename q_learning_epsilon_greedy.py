@@ -34,14 +34,11 @@ def train(env, train_episodes, discount_factor=1.0, alpha=0.5, epsilon=0.1):
     
     # The policy we're following
     policy = make_epsilon_greedy_policy(Q, epsilon, env.action_space.n)
-
-    # Total reward
-    reward_total = 0
     
     for i_episode in range(train_episodes):
         # Print out which episode we're on, useful for debugging.
         if (i_episode + 1) % 100 == 0:
-            print("\rEpisode {}/{}.".format(i_episode, train_episodes), end="")
+            print("\rEpisode {}/{}.".format(i_episode + 1, train_episodes), end="")
             sys.stdout.flush()
         
         # Reset the environment and pick the first action
@@ -66,15 +63,13 @@ def train(env, train_episodes, discount_factor=1.0, alpha=0.5, epsilon=0.1):
             Q[state][action] += alpha * td_delta
                 
             if done:
-                # Add reward
-                reward_total += reward
                 break
                 
             state = next_state
 
-    return reward_total
+    return Q
 
-# Q, stats, reward_total, counter_state_action = train(env, train_episodes=10000)
+# Q = train(env, train_episodes=10000)
 
 # For plot: Create value function from action-value function
 # by picking the best action at each state
@@ -90,7 +85,7 @@ def test(test_episodes, Q, epsilon=0.1):
     # The policy we're following
     policy = make_epsilon_greedy_policy(Q, epsilon, env.action_space.n)
 
-    wins = 0
+    reward_total = 0
     for i_episode in range(1, test_episodes + 1):
         state = env.reset()
 
@@ -99,14 +94,8 @@ def test(test_episodes, Q, epsilon=0.1):
             action = np.random.choice(np.arange(len(probs)), p=probs)
             next_state, reward, done, _ = env.step(action)
             if done:
-                if reward > 0:
-                    wins += 1
-                    break
-                else: break
+                reward_total += reward
+                break
             state = next_state
 
-    print('\nWinning ratio: %.4f%%' % ((float(wins) / test_episodes * 100)))
-
-# test(1000000, Q)
-# plot.plot_episode_stats(stats)
-# print(counter_state_action)
+    return reward_total
