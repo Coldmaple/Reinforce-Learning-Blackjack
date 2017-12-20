@@ -50,7 +50,6 @@ class BlackjackEnv(gym.Env):
         self._seed()
 
         # Flag to payout 1.5 on a "natural" blackjack win, like casino rules
-        # Ref: http://www.bicyclecards.com/how-to-play/blackjack/
         self.natural = natural
         # Start the first game
         self._reset()        # Number of 
