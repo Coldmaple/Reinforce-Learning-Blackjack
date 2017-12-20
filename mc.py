@@ -12,20 +12,6 @@ import plot
 env = BlackjackEnv()
 
 def mc_prediction(policy, env, train_episodes, test_episodes, discount_factor=1.0):
-    """
-    Monte Carlo prediction algorithm. Calculates the value function
-    for a given policy using sampling.
-    
-    Args:
-        policy: A function that maps an observation to action probabilities.
-        env: OpenAI gym environment.
-        train_episodes: Number of episodes to sample.
-        discount_factor: Gamma discount factor.
-    
-    Returns:
-        A dictionary that maps from state -> value.
-        The state is a tuple and the value is a float.
-    """
 
     # Keeps track of sum and count of returns for each state
     # to calculate an average. We could use an array to save all
